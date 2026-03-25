@@ -1,0 +1,97 @@
+# c-stack / autoplan
+#
+# Composes the CEO, engineering, and design reviews into one integrated plan.
+#
+# Usage:
+#   cat plan.md | comanda process examples/c-stack/autoplan.yaml
+
+save-autoplan-brief:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the planning brief unchanged.
+  output: examples/c-stack/artifacts/autoplan/brief.md
+
+load-brief-for-ceo-review:
+  input: examples/c-stack/artifacts/autoplan/brief.md
+  model: NA
+  action:
+    - Pass through the planning brief unchanged.
+  output: STDOUT
+
+run-ceo-review:
+  input: STDIN
+  process:
+    workflow_file: examples/c-stack/plan-ceo-review.yaml
+
+save-ceo-review:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the CEO review unchanged.
+  output: examples/c-stack/artifacts/autoplan/ceo-review.md
+
+load-brief-for-eng-review:
+  input: examples/c-stack/artifacts/autoplan/brief.md
+  model: NA
+  action:
+    - Pass through the planning brief unchanged.
+  output: STDOUT
+
+run-eng-review:
+  input: STDIN
+  process:
+    workflow_file: examples/c-stack/plan-eng-review.yaml
+
+save-eng-review:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the engineering review unchanged.
+  output: examples/c-stack/artifacts/autoplan/eng-review.md
+
+load-brief-for-design-review:
+  input: examples/c-stack/artifacts/autoplan/brief.md
+  model: NA
+  action:
+    - Pass through the planning brief unchanged.
+  output: STDOUT
+
+run-design-review:
+  input: STDIN
+  process:
+    workflow_file: examples/c-stack/plan-design-review.yaml
+
+save-design-review:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the design review unchanged.
+  output: examples/c-stack/artifacts/autoplan/design-review.md
+
+synthesize-autoplan:
+  input:
+    - examples/c-stack/artifacts/autoplan/brief.md
+    - examples/c-stack/artifacts/autoplan/ceo-review.md
+    - examples/c-stack/artifacts/autoplan/eng-review.md
+    - examples/c-stack/artifacts/autoplan/design-review.md
+  model: claude-code
+  action: |
+    Synthesize the planning brief plus the CEO, engineering, and design reviews
+    into a single operating plan.
+
+    Structure the answer exactly as:
+    # c-stack Autoplan
+    ## Product Thesis
+    ## Non-Negotiable Scope
+    ## Architecture And Delivery Shape
+    ## Experience Principles
+    ## Milestones
+    ## Risks And Mitigations
+    ## Launch Readiness Criteria
+    ## Final Recommendation
+
+    Resolve disagreement and produce one cohesive plan.
+  output:
+    - examples/c-stack/artifacts/autoplan/final-plan.md
+    - STDOUT

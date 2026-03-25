@@ -71,6 +71,25 @@ type ListResponse struct {
 	Error   string     `json:"error,omitempty"`
 }
 
+// UIConfigResponse describes public UI/server integration settings
+type UIConfigResponse struct {
+	Success           bool   `json:"success"`
+	AuthEnabled       bool   `json:"authEnabled"`
+	WorkflowsEndpoint string `json:"workflowsEndpoint"`
+	ContentEndpoint   string `json:"contentEndpoint"`
+	GenerateEndpoint  string `json:"generateEndpoint"`
+	ProcessEndpoint   string `json:"processEndpoint"`
+	YAMLProcessPath   string `json:"yamlProcessEndpoint"`
+	Error             string `json:"error,omitempty"`
+}
+
+// WorkflowListResponse represents a workflow-specific listing response
+type WorkflowListResponse struct {
+	Success   bool       `json:"success"`
+	Workflows []FileInfo `json:"workflows"`
+	Error     string     `json:"error,omitempty"`
+}
+
 // BulkFileRequest represents a request for bulk file operations
 type BulkFileRequest struct {
 	Files []FileRequest `json:"files"`

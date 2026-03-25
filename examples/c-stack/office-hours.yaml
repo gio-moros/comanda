@@ -1,0 +1,116 @@
+# c-stack / office-hours
+#
+# Inspired by gstack's product office-hours pattern, adapted to Comanda.
+#
+# Usage:
+#   cat idea.md | comanda process examples/c-stack/office-hours.yaml
+
+save-office-hours-brief:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the product brief unchanged.
+  output: examples/c-stack/artifacts/office-hours/brief.md
+
+parallel-process:
+  claude-founder-lens:
+    input: examples/c-stack/artifacts/office-hours/brief.md
+    model: claude-code
+    action: |
+      You are the founder/CEO voice inside c-stack.
+
+      Review this product brief with direct, high-signal feedback.
+
+      Focus on:
+      1. The sharpest user pain and who feels it most
+      2. The wedge that makes this idea worth building now
+      3. What must be cut from v1
+      4. The highest-risk assumptions
+      5. The best 7-day experiments to validate demand
+
+      Format as markdown with the exact headings:
+      # Claude Office Hours
+      ## Thesis
+      ## Core User
+      ## Wedge
+      ## Cut From V1
+      ## Biggest Risks
+      ## 7-Day Experiments
+      ## Verdict
+    output: examples/c-stack/artifacts/office-hours/claude-founder.md
+
+  gemini-market-lens:
+    input: examples/c-stack/artifacts/office-hours/brief.md
+    model: gemini-cli
+    action: |
+      You are the market strategist inside c-stack.
+
+      Review this product brief through a market and GTM lens.
+
+      Focus on:
+      1. The competitive landscape and substitutes
+      2. Why a customer would switch
+      3. Pricing and packaging possibilities
+      4. Distribution channels worth testing first
+      5. Signals that would prove this has pull
+
+      Format as markdown with the exact headings:
+      # Gemini Office Hours
+      ## Market Reality
+      ## Switching Trigger
+      ## Pricing Ideas
+      ## Distribution Tests
+      ## Demand Signals
+      ## Recommendation
+    output: examples/c-stack/artifacts/office-hours/gemini-market.md
+
+  codex-build-lens:
+    input: examples/c-stack/artifacts/office-hours/brief.md
+    model: openai-codex
+    action: |
+      You are the implementation strategist inside c-stack.
+
+      Review this product brief for buildability and scope control.
+
+      Focus on:
+      1. The minimum shippable product
+      2. The hardest technical risks
+      3. Data, integrations, or infra dependencies
+      4. The fastest implementation sequence
+      5. What should be mocked, faked, or deferred
+
+      Format as markdown with the exact headings:
+      # Codex Office Hours
+      ## Minimum Shippable Product
+      ## Technical Risks
+      ## Dependencies
+      ## Delivery Sequence
+      ## What To Fake First
+      ## Recommendation
+    output: examples/c-stack/artifacts/office-hours/codex-build.md
+
+synthesize-office-hours:
+  input:
+    - examples/c-stack/artifacts/office-hours/brief.md
+    - examples/c-stack/artifacts/office-hours/claude-founder.md
+    - examples/c-stack/artifacts/office-hours/gemini-market.md
+    - examples/c-stack/artifacts/office-hours/codex-build.md
+  model: claude-code
+  action: |
+    Synthesize these c-stack office-hours notes into one founder memo.
+
+    Structure the answer exactly as:
+    # c-stack Office Hours
+    ## Core Thesis
+    ## Best Initial User
+    ## What To Build First
+    ## What Not To Build Yet
+    ## Why This Might Work
+    ## What Could Kill It
+    ## 7-Day Validation Plan
+    ## Final Call
+
+    Be decisive. Prefer cuts over expansion. Resolve conflicts instead of listing options.
+  output:
+    - examples/c-stack/artifacts/office-hours/final-memo.md
+    - STDOUT

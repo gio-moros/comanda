@@ -1,0 +1,113 @@
+# c-stack / plan-ceo-review
+#
+# Strategic review for a proposed execution plan.
+#
+# Usage:
+#   cat plan.md | comanda process examples/c-stack/plan-ceo-review.yaml
+
+save-ceo-review-brief:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the planning brief unchanged.
+  output: examples/c-stack/artifacts/plan-ceo-review/brief.md
+
+parallel-process:
+  claude-ceo-strategy:
+    input: examples/c-stack/artifacts/plan-ceo-review/brief.md
+    model: claude-code
+    action: |
+      You are the CEO reviewer inside c-stack.
+
+      Review this plan for ambition, clarity, and ruthless prioritization.
+
+      Focus on:
+      1. Whether the plan attacks the right problem
+      2. Whether the sequencing is strategically sound
+      3. What should be cut, merged, or delayed
+      4. Where the plan lacks a point of view
+      5. The one outcome that matters most
+
+      Format as markdown with the exact headings:
+      # Claude CEO Review
+      ## Strategic Read
+      ## Keep
+      ## Cut
+      ## Raise The Bar
+      ## Missing Decisions
+      ## Verdict
+    output: examples/c-stack/artifacts/plan-ceo-review/claude-ceo.md
+
+  gemini-business-lens:
+    input: examples/c-stack/artifacts/plan-ceo-review/brief.md
+    model: gemini-cli
+    action: |
+      You are the business and GTM reviewer inside c-stack.
+
+      Review this plan for market leverage and business impact.
+
+      Focus on:
+      1. Customer value concentration
+      2. Go-to-market implications
+      3. Metrics or milestones that matter
+      4. Competitive differentiation
+      5. Where the plan is too inward-looking
+
+      Format as markdown with the exact headings:
+      # Gemini CEO Review
+      ## Customer Value
+      ## GTM Consequences
+      ## Metrics That Matter
+      ## Differentiation
+      ## Weak Spots
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-ceo-review/gemini-business.md
+
+  codex-scope-lens:
+    input: examples/c-stack/artifacts/plan-ceo-review/brief.md
+    model: openai-codex
+    action: |
+      You are the scope-and-delivery reviewer inside c-stack.
+
+      Review this plan for execution realism.
+
+      Focus on:
+      1. The true minimum sequence to ship value
+      2. Hidden dependencies and prerequisite work
+      3. Areas likely to create schedule slip
+      4. Opportunities to turn the plan into thinner milestones
+      5. What should be prototyped before fully built
+
+      Format as markdown with the exact headings:
+      # Codex CEO Review
+      ## Minimum Sequence
+      ## Hidden Dependencies
+      ## Schedule Risks
+      ## Thinner Milestones
+      ## Prototype First
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-ceo-review/codex-scope.md
+
+synthesize-ceo-review:
+  input:
+    - examples/c-stack/artifacts/plan-ceo-review/brief.md
+    - examples/c-stack/artifacts/plan-ceo-review/claude-ceo.md
+    - examples/c-stack/artifacts/plan-ceo-review/gemini-business.md
+    - examples/c-stack/artifacts/plan-ceo-review/codex-scope.md
+  model: claude-code
+  action: |
+    Synthesize these notes into a single CEO review memo.
+
+    Structure the answer exactly as:
+    # c-stack CEO Review
+    ## What This Plan Gets Right
+    ## What To Cut Immediately
+    ## What To Clarify
+    ## The Winning Sequence
+    ## Metrics To Track
+    ## Final CEO Call
+
+    Be specific and opinionated.
+  output:
+    - examples/c-stack/artifacts/plan-ceo-review/final-review.md
+    - STDOUT

@@ -1,0 +1,106 @@
+# c-stack / qa-only
+#
+# QA planning workflow for release candidates, specs, or feature briefs.
+#
+# Usage:
+#   cat release-brief.md | comanda process examples/c-stack/qa-only.yaml
+
+save-qa-input:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the QA brief unchanged.
+  output: examples/c-stack/artifacts/qa-only/input.md
+
+parallel-process:
+  claude-qa:
+    input: examples/c-stack/artifacts/qa-only/input.md
+    model: claude-code
+    action: |
+      You are the QA lead inside c-stack.
+
+      Review this material and build a risk-based manual QA plan.
+
+      Focus on:
+      1. The highest-value user journeys
+      2. Regression hotspots
+      3. Failure scenarios worth exploring manually
+      4. Go/no-go checks before release
+      5. Evidence needed to sign off
+
+      Format as markdown with the exact headings:
+      # Claude QA
+      ## Critical Journeys
+      ## Regression Hotspots
+      ## Exploratory Scenarios
+      ## Go-No-Go Checks
+      ## Sign-Off Evidence
+    output: examples/c-stack/artifacts/qa-only/claude-qa.md
+
+  gemini-qa:
+    input: examples/c-stack/artifacts/qa-only/input.md
+    model: gemini-cli
+    action: |
+      You are the compatibility and accessibility QA reviewer inside c-stack.
+
+      Focus on:
+      1. Browser, device, and environment coverage
+      2. Accessibility checks
+      3. Localization, timezone, or formatting edge cases
+      4. Permission and auth scenarios
+      5. Data integrity checks
+
+      Format as markdown with the exact headings:
+      # Gemini QA
+      ## Coverage Matrix
+      ## Accessibility Checks
+      ## Locale And Environment Edge Cases
+      ## Auth And Permission Cases
+      ## Data Integrity Checks
+    output: examples/c-stack/artifacts/qa-only/gemini-qa.md
+
+  codex-qa:
+    input: examples/c-stack/artifacts/qa-only/input.md
+    model: openai-codex
+    action: |
+      You are the automation and implementation QA reviewer inside c-stack.
+
+      Focus on:
+      1. Automated tests that should exist before release
+      2. Fixtures or seed data needed for confidence
+      3. Observability and alerting checks
+      4. Smoke-test automation opportunities
+      5. Rollback verification steps
+
+      Format as markdown with the exact headings:
+      # Codex QA
+      ## Automated Tests
+      ## Fixtures And Data
+      ## Observability Checks
+      ## Smoke Automation
+      ## Rollback Verification
+    output: examples/c-stack/artifacts/qa-only/codex-qa.md
+
+synthesize-qa-plan:
+  input:
+    - examples/c-stack/artifacts/qa-only/input.md
+    - examples/c-stack/artifacts/qa-only/claude-qa.md
+    - examples/c-stack/artifacts/qa-only/gemini-qa.md
+    - examples/c-stack/artifacts/qa-only/codex-qa.md
+  model: claude-code
+  action: |
+    Synthesize these QA notes into one ship-readiness checklist.
+
+    Structure the answer exactly as:
+    # c-stack QA Plan
+    ## Manual Test Pass
+    ## Automation Required
+    ## Environment Matrix
+    ## Accessibility And Data Checks
+    ## Monitoring During Release
+    ## Final QA Call
+
+    Make the plan practical and ordered.
+  output:
+    - examples/c-stack/artifacts/qa-only/final-plan.md
+    - STDOUT
