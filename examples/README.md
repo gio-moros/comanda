@@ -84,6 +84,23 @@ Usage:
 echo "Design a real-time collaborative editor" | comanda process multi-agent/architecture-planning.yaml
 ```
 
+### c-stack (`c-stack/`)
+Examples inspired by `gstack`'s specialist agent workflows, adapted to Comanda:
+- `office-hours.yaml` - Founder-style product triage for early ideas
+- `plan-ceo-review.yaml` - Strategic review of a proposed plan
+- `plan-eng-review.yaml` - Engineering review for architecture and delivery
+- `plan-design-review.yaml` - Design review for UX and implementation quality
+- `autoplan.yaml` - Compose the three plan reviews into one integrated execution plan
+- `review.yaml` - Multi-agent code or diff review
+- `qa-only.yaml` - QA-focused release validation plan
+- `ship.yaml` - Release-manager rollout and rollback runbook
+
+Usage:
+```bash
+cat plan.md | comanda process examples/c-stack/autoplan.yaml
+git diff --cached | comanda process examples/c-stack/review.yaml
+```
+
 ### Server Examples (`server-examples/`)
 Examples demonstrating server functionality and STDIN input:
 - `stdin-example.yaml` - Shows STDIN input usage with server POST requests
@@ -239,11 +256,16 @@ Each example includes comments explaining its functionality and any specific req
    - `multi-agent/architecture-review.yaml` (sequential refinement)
    - `multi-agent/architecture-decision.yaml` (voting/consensus ADRs)
 
-5. **Data Examples**: Demonstrate data processing capabilities
+5. **c-stack Examples**: gstack-inspired specialist workflows for planning, review, QA, and release work
+   - `c-stack/autoplan.yaml` (CEO + eng + design review synthesis)
+   - `c-stack/review.yaml` (multi-agent code review)
+   - `c-stack/qa-only.yaml` (release validation planning)
+
+6. **Data Examples**: Demonstrate data processing capabilities
    - `database-connections/postgres/db-example.yaml` (database operations)
    - `parallel-processing/parallel-data-processing.yaml` (parallel data analysis)
 
-6. **Server Examples**: Show HTTP server functionality
+7. **Server Examples**: Show HTTP server functionality
    - `server-examples/stdin-example.yaml` (POST request with string input)
    ```bash
    # Check if YAML supports POST
@@ -256,7 +278,7 @@ Each example includes comments explaining its functionality and any specific req
      "http://localhost:8080/process?filename=server-examples/stdin-example.yaml"
    ```
 
-7. **Tool Use Examples**: Execute shell commands in workflows
+8. **Tool Use Examples**: Execute shell commands in workflows
    - `tool-use/tool-input-example.yaml` (use commands as input)
    - `tool-use/tool-output-example.yaml` (pipe output through commands)
    - `tool-use/beads-workflow-example.yaml` (integrate with external CLIs)

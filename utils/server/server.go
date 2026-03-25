@@ -247,6 +247,13 @@ func New(envConfig *config.EnvConfig) (*http.Server, error) {
 
 // routes sets up the server routes
 func (s *Server) routes() {
+	// Public UI endpoints
+	s.mux.HandleFunc("/ui", s.publicMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/ui/", http.StatusTemporaryRedirect)
+	}))
+	s.mux.HandleFunc("/ui/", s.publicMiddleware(s.serveUI))
+	s.mux.HandleFunc("/ui/config", s.publicMiddleware(s.handleUIConfig))
+
 	// Health check endpoint - no auth required
 	s.mux.HandleFunc("/health", s.combinedMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -265,6 +272,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/files/content", s.combinedMiddleware(s.handleGetFileContent))
 	s.mux.HandleFunc("/files/upload", s.combinedMiddleware(s.handleFileUpload))
 	s.mux.HandleFunc("/files/download", s.combinedMiddleware(s.handleFileDownload))
+	s.mux.HandleFunc("/workflows", s.combinedMiddleware(s.handleListWorkflows))
 
 	// Provider operations - require auth
 	s.mux.HandleFunc("/providers", s.combinedMiddleware(func(w http.ResponseWriter, r *http.Request) {

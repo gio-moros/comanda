@@ -1,0 +1,113 @@
+# c-stack / plan-design-review
+#
+# Design review for UX, product taste, and implementation implications.
+#
+# Usage:
+#   cat plan.md | comanda process examples/c-stack/plan-design-review.yaml
+
+save-design-review-brief:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the planning brief unchanged.
+  output: examples/c-stack/artifacts/plan-design-review/brief.md
+
+parallel-process:
+  claude-product-design:
+    input: examples/c-stack/artifacts/plan-design-review/brief.md
+    model: claude-code
+    action: |
+      You are the product design reviewer inside c-stack.
+
+      Review this plan for product taste and user clarity.
+
+      Focus on:
+      1. The core user journey
+      2. Places where the flow becomes confusing or overloaded
+      3. Missing states, transitions, or user feedback
+      4. What should feel polished in v1
+      5. Where the plan risks generic AI-product slop
+
+      Format as markdown with the exact headings:
+      # Claude Design Review
+      ## Core Journey
+      ## Friction Points
+      ## Missing States
+      ## Must-Feel-Great Moments
+      ## Slop Risks
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-design-review/claude-design.md
+
+  gemini-accessibility-design:
+    input: examples/c-stack/artifacts/plan-design-review/brief.md
+    model: gemini-cli
+    action: |
+      You are the UX systems reviewer inside c-stack.
+
+      Review this plan for accessibility, consistency, and multi-device behavior.
+
+      Focus on:
+      1. Accessibility and inclusivity gaps
+      2. Design-system implications
+      3. Responsive and cross-platform concerns
+      4. Error, loading, and empty states
+      5. Instrumentation for UX quality
+
+      Format as markdown with the exact headings:
+      # Gemini Design Review
+      ## Accessibility
+      ## System Consistency
+      ## Responsive Concerns
+      ## State Coverage
+      ## UX Quality Signals
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-design-review/gemini-ux.md
+
+  codex-ui-implementation:
+    input: examples/c-stack/artifacts/plan-design-review/brief.md
+    model: openai-codex
+    action: |
+      You are the frontend implementation reviewer inside c-stack.
+
+      Review this plan for component-level execution quality.
+
+      Focus on:
+      1. Component boundaries and reusable primitives
+      2. Critical UI states that need explicit implementation detail
+      3. Interaction complexity and state management risks
+      4. Frontend testing expectations
+      5. What should be mocked or prototyped before polishing
+
+      Format as markdown with the exact headings:
+      # Codex Design Review
+      ## Component Strategy
+      ## Critical UI States
+      ## Interaction Risks
+      ## Frontend Testing
+      ## Prototype First
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-design-review/codex-ui.md
+
+synthesize-design-review:
+  input:
+    - examples/c-stack/artifacts/plan-design-review/brief.md
+    - examples/c-stack/artifacts/plan-design-review/claude-design.md
+    - examples/c-stack/artifacts/plan-design-review/gemini-ux.md
+    - examples/c-stack/artifacts/plan-design-review/codex-ui.md
+  model: claude-code
+  action: |
+    Synthesize these notes into a single design review.
+
+    Structure the answer exactly as:
+    # c-stack Design Review
+    ## Core Experience
+    ## Friction To Remove
+    ## States To Specify
+    ## Accessibility And Responsiveness
+    ## UI Implementation Guidance
+    ## Final Design Call
+
+    Make concrete recommendations rather than generic advice.
+  output:
+    - examples/c-stack/artifacts/plan-design-review/final-review.md
+    - STDOUT

@@ -1,0 +1,106 @@
+# c-stack / ship
+#
+# Release-manager workflow for rollout, rollback, and launch coordination.
+#
+# Usage:
+#   cat release-brief.md | comanda process examples/c-stack/ship.yaml
+
+save-ship-input:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the release brief unchanged.
+  output: examples/c-stack/artifacts/ship/input.md
+
+parallel-process:
+  claude-release-manager:
+    input: examples/c-stack/artifacts/ship/input.md
+    model: claude-code
+    action: |
+      You are the release manager inside c-stack.
+
+      Review this material and define the release command plan.
+
+      Focus on:
+      1. Go/no-go criteria
+      2. Rollout stages and checkpoints
+      3. Rollback triggers
+      4. Stakeholder coordination needs
+      5. What must be true before pressing deploy
+
+      Format as markdown with the exact headings:
+      # Claude Ship
+      ## Go-No-Go Criteria
+      ## Rollout Plan
+      ## Rollback Triggers
+      ## Coordination Needs
+      ## Recommendation
+    output: examples/c-stack/artifacts/ship/claude-ship.md
+
+  gemini-operations-manager:
+    input: examples/c-stack/artifacts/ship/input.md
+    model: gemini-cli
+    action: |
+      You are the operations reviewer inside c-stack.
+
+      Focus on:
+      1. Monitoring and alerting during rollout
+      2. Support, comms, and incident prep
+      3. Capacity or environment concerns
+      4. External dependency risk
+      5. Post-release verification steps
+
+      Format as markdown with the exact headings:
+      # Gemini Ship
+      ## Monitoring Plan
+      ## Support And Comms
+      ## Capacity And Environment Risks
+      ## External Dependency Risks
+      ## Post-Release Checks
+    output: examples/c-stack/artifacts/ship/gemini-ship.md
+
+  codex-deployment-manager:
+    input: examples/c-stack/artifacts/ship/input.md
+    model: openai-codex
+    action: |
+      You are the deployment reviewer inside c-stack.
+
+      Focus on:
+      1. Migration and configuration changes
+      2. Feature flags and compatibility concerns
+      3. Safe deployment sequencing
+      4. Verification commands or smoke checks
+      5. Fastest credible rollback path
+
+      Format as markdown with the exact headings:
+      # Codex Ship
+      ## Migration And Config Checks
+      ## Flag And Compatibility Review
+      ## Deployment Sequence
+      ## Smoke Checks
+      ## Rollback Path
+    output: examples/c-stack/artifacts/ship/codex-ship.md
+
+synthesize-ship-runbook:
+  input:
+    - examples/c-stack/artifacts/ship/input.md
+    - examples/c-stack/artifacts/ship/claude-ship.md
+    - examples/c-stack/artifacts/ship/gemini-ship.md
+    - examples/c-stack/artifacts/ship/codex-ship.md
+  model: claude-code
+  action: |
+    Synthesize these notes into a single release runbook.
+
+    Structure the answer exactly as:
+    # c-stack Ship Runbook
+    ## Preflight Checks
+    ## Rollout Sequence
+    ## Live Monitoring
+    ## Rollback Plan
+    ## Post-Release Verification
+    ## Final Go-No-Go Recommendation
+
+    Keep it crisp and operational.
+  output:
+    - examples/c-stack/artifacts/ship/final-runbook.md
+    - STDOUT

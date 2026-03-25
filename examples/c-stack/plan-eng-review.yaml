@@ -1,0 +1,113 @@
+# c-stack / plan-eng-review
+#
+# Engineering review for architecture, delivery, and operational risk.
+#
+# Usage:
+#   cat plan.md | comanda process examples/c-stack/plan-eng-review.yaml
+
+save-eng-review-brief:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the planning brief unchanged.
+  output: examples/c-stack/artifacts/plan-eng-review/brief.md
+
+parallel-process:
+  claude-architecture-review:
+    input: examples/c-stack/artifacts/plan-eng-review/brief.md
+    model: claude-code
+    action: |
+      You are the engineering manager inside c-stack.
+
+      Review this plan for system boundaries and technical risk.
+
+      Focus on:
+      1. Architectural clarity and missing boundaries
+      2. Risky assumptions hidden in the plan
+      3. Failure modes and operational concerns
+      4. Necessary design decisions before implementation starts
+      5. Where the plan is too vague for engineers to execute
+
+      Format as markdown with the exact headings:
+      # Claude Eng Review
+      ## Architecture Read
+      ## Missing Decisions
+      ## Key Risks
+      ## Operational Concerns
+      ## What Must Be Specified First
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-eng-review/claude-architecture.md
+
+  gemini-platform-review:
+    input: examples/c-stack/artifacts/plan-eng-review/brief.md
+    model: gemini-cli
+    action: |
+      You are the platform and systems reviewer inside c-stack.
+
+      Review this plan for scalability, observability, and production readiness.
+
+      Focus on:
+      1. Data flow and integration boundaries
+      2. Scalability bottlenecks
+      3. Security, reliability, and monitoring gaps
+      4. Infra or platform work that must be budgeted
+      5. What should be instrumented on day one
+
+      Format as markdown with the exact headings:
+      # Gemini Eng Review
+      ## Platform Read
+      ## Bottlenecks
+      ## Reliability And Security
+      ## Infra Work
+      ## Day-One Instrumentation
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-eng-review/gemini-platform.md
+
+  codex-delivery-review:
+    input: examples/c-stack/artifacts/plan-eng-review/brief.md
+    model: openai-codex
+    action: |
+      You are the delivery-focused principal engineer inside c-stack.
+
+      Review this plan for implementation sequencing.
+
+      Focus on:
+      1. Repo or service boundaries implied by the plan
+      2. Milestones that can be built and tested independently
+      3. Missing test strategy and CI expectations
+      4. Migration, rollout, or compatibility concerns
+      5. The smallest slices that reduce execution risk
+
+      Format as markdown with the exact headings:
+      # Codex Eng Review
+      ## Implementation Shape
+      ## Safe Milestones
+      ## Testing Strategy
+      ## Migration And Rollout Risks
+      ## Smallest Safe Slices
+      ## Recommendation
+    output: examples/c-stack/artifacts/plan-eng-review/codex-delivery.md
+
+synthesize-eng-review:
+  input:
+    - examples/c-stack/artifacts/plan-eng-review/brief.md
+    - examples/c-stack/artifacts/plan-eng-review/claude-architecture.md
+    - examples/c-stack/artifacts/plan-eng-review/gemini-platform.md
+    - examples/c-stack/artifacts/plan-eng-review/codex-delivery.md
+  model: claude-code
+  action: |
+    Synthesize these notes into a single engineering review.
+
+    Structure the answer exactly as:
+    # c-stack Eng Review
+    ## Architecture Decisions
+    ## Main Execution Risks
+    ## Delivery Plan
+    ## Testing And Observability
+    ## Rollout Considerations
+    ## Final Eng Call
+
+    Prioritize clarity over exhaustiveness.
+  output:
+    - examples/c-stack/artifacts/plan-eng-review/final-review.md
+    - STDOUT

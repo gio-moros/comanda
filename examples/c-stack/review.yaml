@@ -1,0 +1,106 @@
+# c-stack / review
+#
+# Multi-agent review for code, specs, or diffs.
+#
+# Usage:
+#   git diff --cached | comanda process examples/c-stack/review.yaml
+#   cat patch.diff | comanda process examples/c-stack/review.yaml
+
+save-review-input:
+  input: STDIN
+  model: NA
+  action:
+    - Pass through the review input unchanged.
+  output: examples/c-stack/artifacts/review/input.md
+
+parallel-process:
+  claude-review:
+    input: examples/c-stack/artifacts/review/input.md
+    model: claude-code
+    action: |
+      You are the primary code reviewer inside c-stack.
+
+      Review this material for:
+      1. Functional bugs
+      2. Security issues
+      3. Regression risk
+      4. Missing edge-case handling
+      5. Missing tests
+
+      Format as markdown with the exact headings:
+      # Claude Review
+      ## Critical Findings
+      ## Major Findings
+      ## Minor Findings
+      ## Missing Tests
+      ## Recommendation
+
+      Keep findings concrete and evidence-based.
+    output: examples/c-stack/artifacts/review/claude-review.md
+
+  gemini-review:
+    input: examples/c-stack/artifacts/review/input.md
+    model: gemini-cli
+    action: |
+      You are the systems and resilience reviewer inside c-stack.
+
+      Review this material for:
+      1. Edge cases and failure modes
+      2. Reliability and observability gaps
+      3. API or contract regressions
+      4. Performance implications
+      5. Rollout or maintenance concerns
+
+      Format as markdown with the exact headings:
+      # Gemini Review
+      ## Reliability Findings
+      ## Contract Risks
+      ## Performance Concerns
+      ## Monitoring Gaps
+      ## Recommendation
+    output: examples/c-stack/artifacts/review/gemini-review.md
+
+  codex-review:
+    input: examples/c-stack/artifacts/review/input.md
+    model: openai-codex
+    action: |
+      You are the implementation-focused reviewer inside c-stack.
+
+      Review this material for:
+      1. Logic bugs and incorrect assumptions
+      2. Code structure or maintainability issues
+      3. Incomplete implementation
+      4. Test coverage gaps
+      5. Safer implementation alternatives
+
+      Format as markdown with the exact headings:
+      # Codex Review
+      ## Logic Risks
+      ## Maintainability Risks
+      ## Incomplete Areas
+      ## Test Gaps
+      ## Recommendation
+    output: examples/c-stack/artifacts/review/codex-review.md
+
+synthesize-review:
+  input:
+    - examples/c-stack/artifacts/review/input.md
+    - examples/c-stack/artifacts/review/claude-review.md
+    - examples/c-stack/artifacts/review/gemini-review.md
+    - examples/c-stack/artifacts/review/codex-review.md
+  model: claude-code
+  action: |
+    Synthesize these review notes into one actionable review.
+
+    Structure the answer exactly as:
+    # c-stack Review
+    ## Must Fix
+    ## Should Fix
+    ## Nice To Have
+    ## Missing Tests
+    ## Release Risk
+
+    Only include issues that are concrete enough to act on.
+  output:
+    - examples/c-stack/artifacts/review/final-review.md
+    - STDOUT

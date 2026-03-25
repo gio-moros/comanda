@@ -54,3 +54,18 @@ data*/
 
 # Comanda local directory (indexes, cache, etc.)
 .comanda/
+
+# UI app
+ui/node_modules/
+ui/dist/
+ui/.vite/
+ui/*.tsbuildinfo
+.gstack/
+
+# Chat UI app
+chatui/node_modules/
+chatui/.next/
+chatui/out/
+
+# Git worktrees
+.worktrees/
